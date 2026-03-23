@@ -1,18 +1,35 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
-  </ItemGroup>
+	<ItemGroup>
+		<!-- EF Core 核心 -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
 
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
+		<!-- SQL Server 支持（最关键） -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+
+		<!-- 迁移工具 -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+
+		<!-- 设计时工具 -->
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8" />
+
+		<!-- Swagger -->
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.5" />
+
+		<!-- JSON -->
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="uploads\" />
+	</ItemGroup>
 
 </Project>

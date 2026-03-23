@@ -1,15 +1,30 @@
+﻿using MathAnalysisAI.Data;
+using MathAnalysisAI.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// 数据库
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// 控制器
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// 服务
+builder.Services.AddScoped<MathpixService>();
+builder.Services.AddScoped<LLMService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+app.UseDefaultFiles();   // 自动打开 index.html
+app.UseStaticFiles();    // 允许访问 wwwroot
+
+// Swagger中间件
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

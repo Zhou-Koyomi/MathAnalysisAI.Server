@@ -1,0 +1,75 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>错题本</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        body {
+            font-family: Arial;
+        }
+
+        .card {
+            border: 1px solid #ccc;
+            margin: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>我的错题本</h1>
+
+    <div id="list"></div>
+
+    <script>
+        function fixLatex(text) {
+            if (!text) return "";
+
+            // 去掉错误的 $$ 残片
+            text = text.replace(/\$\$/g, "");
+
+            // 修复常见错误
+            text = text
+                .replace(/\\left/g, "")
+                .replace(/\\right/g, "")
+                .replace(/\\mathrm{d}/g, "d")
+                .replace(/\s+/g, " ");
+
+            // 自动包裹
+            return "$$" + text + "$$";
+        }
+
+        fetch("/api/Question/list")
+            .then(res => res.json())
+            .then(data => {
+
+                let html = "";
+
+                data.forEach(q => {
+
+                    let imgUrl = q.imagePath
+                        .replace("C:\\Users\\zhoux\\source\\repos\\MathAnalysisAI.Server\\wwwroot", "")
+                        .replace(/\\/g, "/");
+
+                    let latex = fixLatex(q.contentHtml);
+
+                    html += `
+                    <div class="card">
+                        <img src="${imgUrl}" width="200"><br/>
+                        <div>${latex}</div>
+                    </div>
+                `;
+                });
+
+                document.getElementById("list").innerHTML = html;
+
+                // 强制重新渲染
+                MathJax.typesetPromise();
+            });
+    </script>
+
+</body>
+</html>
