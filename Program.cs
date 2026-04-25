@@ -1,4 +1,5 @@
 ﻿using MathAnalysisAI.Data;
+using MathAnalysisAI.Server.Services;
 using MathAnalysisAI.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,7 +17,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // 服务
-builder.Services.AddScoped<MathpixService>();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<LLMService>();
 
 var app = builder.Build();

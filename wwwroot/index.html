@@ -4,72 +4,127 @@
     <meta charset="utf-8">
     <title>错题本</title>
 
+    <!-- MathJax -->
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
     <style>
         body {
-            font-family: Arial;
+            font-family: "Segoe UI";
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
         }
 
         .card {
-            border: 1px solid #ccc;
-            margin: 10px;
-            padding: 10px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
+
+        .img-box {
+            text-align: center;
+        }
+
+            .img-box img {
+                max-width: 100%;
+                border-radius: 6px;
+            }
+
+        .section-title {
+            font-weight: bold;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+
+        .analysis {
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 6px;
+            line-height: 1.6;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 6px 12px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background: #0056b3;
+            }
     </style>
 </head>
 
 <body>
-    <h1>我的错题本</h1>
-
-    <div id="list"></div>
+    <div class="container">
+        <h1>我的AI错题本</h1>
+        <div id="list">加载中...</div>
+    </div>
 
     <script>
-        function fixLatex(text) {
-            if (!text) return "";
 
-            // 去掉错误的 $$ 残片
-            text = text.replace(/\$\$/g, "");
+        async function loadQuestions() {
+            const res = await fetch("/api/Question/list");
+            const data = await res.json();
 
-            // 修复常见错误
-            text = text
-                .replace(/\\left/g, "")
-                .replace(/\\right/g, "")
-                .replace(/\\mathrm{d}/g, "d")
-                .replace(/\s+/g, " ");
+            let html = "";
 
-            // 自动包裹
-            return "$$" + text + "$$";
+            data.forEach(q => {
+                html += `
+            <div class="card">
+
+                <div class="img-box">
+                    <img src="${q.imagePath}">
+                </div>
+
+                <div class="section-title">识别结果：</div>
+                <div>$$${q.contentHtml || ""}$$</div>
+
+                <button onclick="analyze(${q.id})">AI分析</button>
+
+                <div id="ai-${q.id}" class="analysis"></div>
+
+            </div>
+            `;
+            });
+
+            document.getElementById("list").innerHTML = html;
+
+            if (window.MathJax) {
+                MathJax.typeset();
+            }
         }
 
-        fetch("/api/Question/list")
-            .then(res => res.json())
-            .then(data => {
-
-                let html = "";
-
-                data.forEach(q => {
-
-                    let imgUrl = q.imagePath
-                        .replace("C:\\Users\\zhoux\\source\\repos\\MathAnalysisAI.Server\\wwwroot", "")
-                        .replace(/\\/g, "/");
-
-                    let latex = fixLatex(q.contentHtml);
-
-                    html += `
-                    <div class="card">
-                        <img src="${imgUrl}" width="200"><br/>
-                        <div>${latex}</div>
-                    </div>
-                `;
-                });
-
-                document.getElementById("list").innerHTML = html;
-
-                // 强制重新渲染
-                MathJax.typesetPromise();
+        async function analyze(id) {
+            const res = await fetch(`/api/Question/analyze/${id}`, {
+                method: "POST"
             });
-    </script>
 
+            const text = await res.text();
+
+            document.getElementById(`ai-${id}`).innerHTML = text;
+
+            if (window.MathJax) {
+                MathJax.typeset();
+            }
+        }
+
+        loadQuestions();
+
+    </script>
 </body>
 </html>
