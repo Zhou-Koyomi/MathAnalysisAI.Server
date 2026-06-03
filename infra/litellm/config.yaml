@@ -1,0 +1,60 @@
+model_list:
+  - model_name: math-reviewer
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  - model_name: math-solver
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  - model_name: math-hint
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  - model_name: math-explainer
+    litellm_params:
+      model: deepseek/deepseek-chat
+      api_key: os.environ/DEEPSEEK_API_KEY
+
+  - model_name: photo-solution-ocr
+    litellm_params:
+      # Primary route (domestic-first): DashScope / Qwen-VL via OpenAI-compatible endpoint.
+      # Keep this alias stable for backend calls; switch upstream provider here only.
+      model: openai/qwen-vl-plus
+      api_key: os.environ/DASHSCOPE_API_KEY
+      api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+
+  # Domestic vision profile examples (disabled by default, enable one when verified).
+  # - model_name: photo-solution-ocr-dashscope
+  #   litellm_params:
+  #     model: openai/qwen-vl-plus
+  #     api_key: os.environ/DASHSCOPE_API_KEY
+  #     api_base: https://dashscope.aliyuncs.com/compatible-mode/v1
+  #
+  # - model_name: photo-solution-ocr-siliconflow
+  #   litellm_params:
+  #     model: openai/Qwen/Qwen2.5-VL-72B-Instruct
+  #     api_key: os.environ/SILICONFLOW_API_KEY
+  #     api_base: https://api.siliconflow.cn/v1
+  #
+  # OpenRouter backup profile (keep as backup, not primary).
+  # - model_name: photo-solution-ocr-openrouter-backup
+  #   litellm_params:
+  #     model: openrouter/google/gemini-2.5-flash
+  #     api_key: os.environ/OPENROUTER_API_KEY
+  #     api_base: https://openrouter.ai/api/v1
+
+  # Optional future alias example for course material OCR.
+  # Keep it commented or map it to an available vision model before enabling.
+  # - model_name: math-material-ocr
+  #   litellm_params:
+  #     model: openrouter/google/gemini-2.5-flash
+  #     api_key: os.environ/OPENROUTER_API_KEY
+  #     api_base: https://openrouter.ai/api/v1
+
+# Optional defaults for local proxy behavior.
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY

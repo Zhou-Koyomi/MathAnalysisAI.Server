@@ -1,0 +1,124 @@
+# =============================================================================
+# MathAnalysisAI Nginx Configuration Template
+# =============================================================================
+# Purpose: Reverse proxy with HTTPS termination for the MathAnalysisAI ASP.NET
+#          server. Routes traffic to http://127.0.0.1:5131.
+#
+# STATUS: TEMPLATE — NOT INSTALLED, NOT ENABLED.
+# This file is a deployment reference only. It must be reviewed and customized
+# before use on any server.
+#
+# BEFORE USING THIS TEMPLATE:
+#   1. Replace ALL occurrences of "example.com" with your actual domain.
+#   2. Replace certificate paths with real Let's Encrypt or cloud-issued paths.
+#   3. Ensure production authentication is implemented (not DevelopmentUsername).
+#   4. Review and apply Tencent Cloud security group rules.
+#   5. Test with: nginx -t
+#   6. Verify with: curl -I https://your-domain/api/health
+#
+# Related docs:
+#   - Docs/NginxHttpsDesign.md
+#   - Docs/ForwardedHeadersDesign.md (R34-c)
+#   - Docs/TencentCloudSecurityGroupChecklist.md (R34-f)
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# HTTP (port 80) — Redirect to HTTPS, support ACME challenges
+# ---------------------------------------------------------------------------
+server {
+    listen 80;
+    listen [::]:80;
+    server_name example.com;
+
+    # Let's Encrypt / ACME HTTP-01 challenge path
+    location ^~ /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        default_type text/plain;
+    }
+
+    # Everything else → redirect to HTTPS
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# ---------------------------------------------------------------------------
+# HTTPS (port 443) — Reverse proxy to ASP.NET server
+# ---------------------------------------------------------------------------
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name example.com;
+
+    # SSL certificate — REPLACE with real paths before deployment
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
+
+    # SSL configuration (Mozilla intermediate profile, recommended)
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    # OCSP stapling (optional; enable once cert is in place)
+    # ssl_stapling on;
+    # ssl_stapling_verify on;
+
+    # HSTS — UNCOMMENT ONLY after HTTPS is verified stable (start with short max-age)
+    # add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+
+    # Security headers (recommended baseline)
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+
+    # Upload / body size — must be >= backend limit (100MB PDF + overhead)
+    client_max_body_size 120m;
+
+    # Timeouts — accommodate long-running LLM analyze / OCR requests
+    proxy_read_timeout 300s;
+    proxy_send_timeout 300s;
+    send_timeout 300s;
+
+    # -----------------------------------------------------------------------
+    # Reverse proxy to ASP.NET server (http://127.0.0.1:5131)
+    # -----------------------------------------------------------------------
+    location / {
+        proxy_pass http://127.0.0.1:5131;
+
+        # Preserve original Host
+        proxy_set_header Host $host;
+
+        # Forward real client IP and protocol (trusted proxy chain)
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host  $host;
+
+        # Connection handling
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+
+        # Do NOT expose the following paths publicly:
+        #   - /uploads/ (legacy file storage)
+        #   - LiteLLM proxy (port 4000)
+        #   - SQL Server (port 1433)
+        # These are handled by NOT adding corresponding location blocks.
+    }
+
+    # -----------------------------------------------------------------------
+    # Deny access to .hidden files and sensitive paths
+    # -----------------------------------------------------------------------
+    location ~ /\. {
+        deny all;
+        access_log off;
+        log_not_found off;
+    }
+
+    # -----------------------------------------------------------------------
+    # Logging (customize paths for your server)
+    # -----------------------------------------------------------------------
+    access_log /var/log/nginx/mathanalysis-ai.access.log;
+    error_log  /var/log/nginx/mathanalysis-ai.error.log warn;
+}

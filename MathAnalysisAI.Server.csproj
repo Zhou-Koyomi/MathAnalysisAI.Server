@@ -26,6 +26,9 @@
 
 		<!-- JSON -->
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+
+		<!-- PDF text extraction -->
+		<PackageReference Include="UglyToad.PdfPig" Version="1.7.0-custom-5" />
 	</ItemGroup>
 
 	<ItemGroup>

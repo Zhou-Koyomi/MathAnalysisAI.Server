@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>开发工具 - 数学分析智能体</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="/vendor/mathlive/mathlive-static.css">
+    <link rel="stylesheet" href="/vendor/mathlive/mathlive-fonts.css">
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="container">
+    <nav class="top-nav" aria-label="主导航">
+        <a class="top-nav-link" href="/index.html">学习分析</a>
+        <a class="top-nav-link" href="/materials.html">课程资料</a>
+        <a class="top-nav-link" href="/stats.html">学习统计</a>
+        <a class="top-nav-link nav-dev" href="/dev.html">开发工具</a>
+    </nav>
+
+    <div class="hero hero-left">
+        <h1>开发工具</h1>
+        <p>仅用于开发阶段检查旧图片识别记录与 legacy 接口。</p>
+    </div>
+
+    <div id="devAccessDenied" style="display:none;"></div>
+
+    <div id="devToolsArea">
+    <div class="card">
+        <div class="hint">该页面仅用于开发调试，正式学生端可隐藏。</div>
+    </div>
+
+    <div class="card" id="symbolicDevCard">
+        <div class="section-title">符号计算调试</div>
+        <div class="hint">用于调试符号计算能力，不进入学生端主流程。</div>
+        <div class="symbolic-grid">
+            <div>
+                <label for="symbolicOperation">计算类型</label>
+                <select id="symbolicOperation">
+                    <option value="simplify">simplify</option>
+                    <option value="expand">expand</option>
+                    <option value="factor">factor</option>
+                    <option value="diff">diff</option>
+                    <option value="integrate">integrate</option>
+                    <option value="limit">limit</option>
+                    <option value="solve">solve</option>
+                    <option value="series">series</option>
+                </select>
+            </div>
+            <div>
+                <label for="symbolicVariable">变量（可选）</label>
+                <input id="symbolicVariable" type="text" value="x" placeholder="例如 x">
+            </div>
+            <div class="full">
+                <label for="symbolicExpression">表达式</label>
+                <input id="symbolicExpression" type="text" placeholder="例如 sin(x)/x 或 x^2 - 1 = 0">
+            </div>
+            <div>
+                <label for="symbolicLower">lower（可选）</label>
+                <input id="symbolicLower" type="text" placeholder="例如 1">
+            </div>
+            <div>
+                <label for="symbolicUpper">upper（可选）</label>
+                <input id="symbolicUpper" type="text" placeholder="例如 oo">
+            </div>
+            <div>
+                <label for="symbolicPoint">point（可选）</label>
+                <input id="symbolicPoint" type="text" placeholder="例如 0">
+            </div>
+            <div>
+                <label for="symbolicOrder">order（可选）</label>
+                <input id="symbolicOrder" type="text" placeholder="例如 5">
+            </div>
+        </div>
+        <div class="hint">
+            示例：limit `sin(x)/x`（x, 0） / integrate `1/x^2`（x, 1, oo） / diff `sin(x^2)`（x）
+        </div>
+        <div class="actions">
+            <button id="symbolicComputeBtn">计算</button>
+            <span id="symbolicStatus" class="status"></span>
+        </div>
+        <div id="symbolicResult" class="analysis" style="display:none;"></div>
+    </div>
+
+    <div class="card mathlive-card" id="mathliveDevCard">
+        <div class="section-title">MathLive 公式编辑器试验</div>
+        <div class="hint">用于验证网页端公式编辑体验（开发验证，不进入学生端主流程）。</div>
+        <div id="mathliveLoadHint" class="status warning-hint" style="display:none;"></div>
+        <math-field id="mathliveDevField" class="mathlive-field"></math-field>
+        <div class="example-button-row">
+            <button type="button" class="btn-secondary" id="mathliveExampleLimitBtn">示例：极限</button>
+            <button type="button" class="btn-secondary" id="mathliveExampleMatrixBtn">示例：矩阵</button>
+            <button type="button" class="btn-secondary" id="mathliveExampleIntegralBtn">示例：反常积分</button>
+            <button type="button" class="btn-secondary" id="mathliveClearBtn">清空</button>
+            <button type="button" class="btn-secondary" id="mathliveCopyBtn">复制 LaTeX</button>
+        </div>
+        <div class="latex-output">
+            <div class="hint">当前 LaTeX</div>
+            <code id="mathliveCurrentLatex"></code>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="section-title section-title-compact">图片识别记录</div>
+        <div class="hint">Legacy OCR 与分析链路已在 R35-d 阶段移除。请使用首页的拍照解答功能。</div>
+    </div>
+    </div>
+</div>
+
+<script src="/js/config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/vendor/mathlive/mathlive.min.js"></script>
+<script src="/js/symbolic-dev.js"></script>
+<script src="/js/mathlive-dev.js"></script>
+</body>
+</html>

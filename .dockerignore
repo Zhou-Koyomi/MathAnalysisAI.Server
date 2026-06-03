@@ -1,0 +1,17 @@
+**/bin/
+**/obj/
+**/node_modules/
+.git/
+.gitignore
+.vs/
+
+.env
+.env.*
+*.env.local
+infra/litellm/.env.local
+
+wwwroot/uploads/
+
+# Keep static vendor assets required by frontend
+!wwwroot/vendor/
+!wwwroot/vendor/**
