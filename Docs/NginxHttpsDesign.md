@@ -26,6 +26,9 @@
 - 更接近腾讯云 CVM 的常规部署方式。
 - 更便于配合 `certbot` 或宿主机证书目录管理。
 - 证书续期、Nginx reload、日志排障都更直观。
+- 当前仓库中的 `docker-compose.prod.yml` 已同步按此路线收敛为：
+  - `127.0.0.1:5131`
+  - 便于后续 Nginx 直接反代本机 ASP.NET server
 
 ### 2.2 路线 B：Nginx 容器化
 - 将 Nginx 作为 compose 内单独服务。
@@ -52,14 +55,12 @@
 - Docker daemon 相关端口
 
 ### 3.3 与当前 compose 状态的关系
-- 当前 `docker-compose.prod.yml` 为了本地验证，仍 publish：
-  - `1433:1433`
-  - `4000:4000`
-  - `5131:5131`
-- 这适合本地开发与演示验证，但**不适合作为公网生产最终形态**。
-- 生产建议后续在 `R34-d` 收敛为：
-  - 绑定 `127.0.0.1`
-  - 或完全仅保留 Docker 内部网络访问
+- 当前仓库中的 `docker-compose.prod.yml` 已完成 `R34-d-local`：
+  - `127.0.0.1:1433:1433`
+  - `127.0.0.1:4000:4000`
+  - `127.0.0.1:5131:5131`
+- 若服务器运行中的容器仍显示 `0.0.0.0`，说明服务器尚未 `pull` 新代码并 `--force-recreate`。
+- 当前仍未完成的，是服务器侧真实生效验证与后续 Nginx/HTTPS 接入。
 
 ## 4. Nginx 反向代理设计
 ### 4.1 目标
@@ -227,3 +228,6 @@
   - Forwarded Headers
   - 端口收敛
 - 当前设计只完成方案层；Nginx 配置模板已生成：`deploy/nginx/mathanalysis-ai.conf.example`（R34-b）。真实服务器配置尚未执行。
+- Linux 首轮部署试验已确认下一阶段优先级应为：
+  - 服务器侧完成 `R34-d` 端口收敛生效验证
+  - 随后再做真实 Nginx / HTTPS 接入

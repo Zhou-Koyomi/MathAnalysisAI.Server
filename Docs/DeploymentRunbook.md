@@ -9,6 +9,7 @@
 - SQL Server 手动备份与临时恢复手册见：`Docs/BackupRestoreRunbook.md`。
 - SQL Server 定时备份设计见：`Docs/ScheduledBackupDesign.md`。
 - Nginx + HTTPS 部署设计见：`Docs/NginxHttpsDesign.md`。
+- Linux 服务器部署试验报告见：`Docs/LinuxDeploymentTrialReport.md`。
 
 ## 2. 生产 compose 模板
 - 文件：`docker-compose.prod.yml`
@@ -21,6 +22,7 @@
 - `server` 通过 Dockerfile 本地构建（multi-stage .NET 8）。
 - `server` 包含 compose healthcheck（`GET /api/health`）。
 - 当前 Nginx / HTTPS 仍未实现，公网部署前需先按 `Docs/NginxHttpsDesign.md` 补齐。
+- 当前仓库中的 `docker-compose.prod.yml` 已按生产建议收敛端口绑定为 `127.0.0.1`。
 
 ## 3. secrets 文件方案
 推荐目录：`/etc/mathanalysis-ai`
@@ -146,6 +148,15 @@ docker compose -f docker-compose.prod.yml up -d --force-recreate litellm
 - `curl -i http://localhost:5131/api/health` 已返回 `200` 与 `status=ok`。
 - `docker inspect --format='{{json .State.Health}}' mathanalysis-server` 已实测为 `healthy`。
 - compose SQL 新 volume 场景下，已完成数据库迁移、登录/session、LiteLLM 直测与 analyze 成功闭环验证。
+- Linux 服务器首轮部署试验也已完成：
+  - compose 启动成功
+  - SQL migration 完成
+  - `MathAnalysisAI` 数据库存在
+  - `test_student` 登录成功
+  - LiteLLM `math-reviewer` 直测成功
+  - `/api/learning-analysis/analyze` 返回 `200`
+  - leaderboard 更新正常
+  - 当前仓库已完成 `R34-d-local` 端口绑定收敛修改，服务器侧仍需手动 `pull` + `--force-recreate`
 
 说明：
 - `server` 镜像不包含真实 key。
@@ -187,6 +198,14 @@ dotnet ef database update --connection "Server=localhost,1433;Database=MathAnaly
 - LiteLLM 直测 `math-reviewer`
 - `/api/learning-analysis/analyze`
 
+Linux 首次部署过程中已遇到并确认的注意事项：
+- 若宿主机没有 .NET SDK，则无法直接在宿主机执行 `dotnet ef database update`。
+- 首次执行 migration 前，需要确保项目依赖已可正常 `dotnet restore`。
+- `server.env` 中数据库连接串密码必须与 `sqlserver.env` 中 `MSSQL_SA_PASSWORD` 一致。
+- 修改 `env_file` 后，必须使用：
+  - `docker compose -f docker-compose.prod.yml up -d --force-recreate <service>`
+  才能让新环境变量进入容器。
+
 ## 4.2 DeepSeek 401 鉴权排查
 - 若前端“开始分析”报 `DeepseekException - Authentication Fails` / `code=401`：
   - 先确认 `/etc/mathanalysis-ai/litellm.env` 中的 `DEEPSEEK_API_KEY` 已替换为真实有效 key；
@@ -208,6 +227,35 @@ dotnet ef database update --connection "Server=localhost,1433;Database=MathAnaly
   - 当前代码要求：`LiteLLM__BaseUrl=http://litellm:4000/v1/chat/completions`
 - `docker compose config` 泄露 env：
   - 该命令会展开 `env_file` 内容，真实 key 不要贴到聊天、日志或 issue。
+
+## 4.4 Linux 端口收敛前检查（设计阶段）
+- 当前仓库中的 compose 模板已经改为仅本机绑定：
+  - `127.0.0.1:1433:1433`
+  - `127.0.0.1:4000:4000`
+  - `127.0.0.1:5131:5131`
+- 如果服务器上的运行中容器仍显示 `0.0.0.0`，说明新模板尚未通过重建生效。
+- 生产推荐目标应为仅本机绑定：
+  - `127.0.0.1:1433:1433`
+  - `127.0.0.1:4000:4000`
+  - `127.0.0.1:5131:5131`
+- 端口收敛实施前建议按以下顺序执行：
+  1. 在服务器 `pull` 最新代码
+  2. 确认腾讯云安全组未开放 `1433 / 4000 / 5131`
+  3. `docker compose -f docker-compose.prod.yml config`
+  4. `docker compose -f docker-compose.prod.yml up -d --force-recreate`
+  5. `docker compose -f docker-compose.prod.yml ps`
+  6. 预期端口显示：
+     - `127.0.0.1:1433->1433`
+     - `127.0.0.1:4000->4000`
+     - `127.0.0.1:5131->5131`
+  7. 本机验证：
+     - `curl -i http://127.0.0.1:5131/api/health`
+     - 登录 `test_student`
+     - LiteLLM 本机直测
+     - analyze 本机测试
+  8. 确认服务器公网 IP 无法访问 `1433 / 4000 / 5131`
+  9. 再进入 Nginx / HTTPS 阶段
+- 本轮 runbook 只记录方案，不在此文档中执行真实收敛。
 
 ## 4.1 Healthcheck 说明（当前为浅检查）
 - 后端 endpoint：`GET /api/health`

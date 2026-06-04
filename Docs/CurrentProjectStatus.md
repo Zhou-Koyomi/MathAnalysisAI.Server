@@ -183,7 +183,25 @@
   - 已新增 `Docs/NginxHttpsDesign.md`。
   - 已明确当前阶段推荐宿主机 Nginx，外部只开放 `80/443`。
   - 已明确 SQL Server / LiteLLM / ASP.NET server 不应作为公网直连入口。
-  - 当前 Nginx 配置模板仍未实现，服务器也尚未按该方案配置。
+  - `deploy/nginx/mathanalysis-ai.conf.example` 已存在，但服务器尚未按该方案真实接入。
+- Linux 服务器部署试验
+  - 已新增 `Docs/LinuxDeploymentTrialReport.md`。
+  - Linux compose 首轮部署已验证通过：
+    - SQL migration 完成
+    - `MathAnalysisAI` 数据库存在
+    - 20 张表存在
+    - `/api/health` 返回 `200`
+    - `mathanalysis-server` 为 `healthy`
+    - `test_student` 登录成功
+    - LiteLLM `math-reviewer` 直测成功
+    - `/api/learning-analysis/analyze` 返回 `200`
+    - leaderboard 更新正常
+  - 已记录一次 `server.env` 与 `sqlserver.env` 密码不一致导致的登录/SQL 失败，并已通过修正 `server.env` + `--force-recreate server` 解决。
+  - 仓库侧 `docker-compose.prod.yml` 已完成 compose 生产端口收敛修改：
+    - `127.0.0.1:1433:1433`
+    - `127.0.0.1:4000:4000`
+    - `127.0.0.1:5131:5131`
+  - 服务器侧仍需手动 `pull` 新代码并 `docker compose up -d --force-recreate` 才会生效。
 
 ## 3. 当前页面结构
 - `index.html`：学生学习分析首页
@@ -258,6 +276,13 @@
   - `mathanalysis-server` Running
   - `mathanalysis-server` health = `healthy`
 - `/api/health` 已实测返回 `status=ok`。
+- Linux 服务器首轮部署试验已跑通：
+  - compose 启动成功
+  - migration 成功
+  - login / LiteLLM / analyze / leaderboard 均已验证通过
+- 当前 Linux 部署主要剩余风险：
+  - 服务器运行中的容器若尚未重建，`1433 / 4000 / 5131` 仍可能保持 `0.0.0.0`
+  - 需要继续完成服务器侧端口收敛验证 + Nginx/HTTPS 阶段
 - 拍照解答 OCR 已完成 DashScope / 阿里百炼真实联调。
 - `photo-solution-ocr` 当前链路为：LiteLLM alias -> DashScope OpenAI-compatible 视觉模型。
 - 已验证 OCR 返回 `problemText` / `studentSolutionText` / `formulas`。
