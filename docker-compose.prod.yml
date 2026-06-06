@@ -1,0 +1,49 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mathanalysis-sqlserver
+    restart: unless-stopped
+    env_file:
+      - /etc/mathanalysis-ai/sqlserver.env
+    volumes:
+      - mathanalysis_sql_data:/var/opt/mssql
+    ports:
+      - "127.0.0.1:1433:1433"
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-latest
+    container_name: mathanalysis-litellm
+    restart: unless-stopped
+    env_file:
+      - /etc/mathanalysis-ai/litellm.env
+    volumes:
+      - ./infra/litellm/config.yaml:/app/config.yaml:ro
+    command: ["--config", "/app/config.yaml", "--port", "4000"]
+    ports:
+      - "127.0.0.1:4000:4000"
+    depends_on:
+      - sqlserver
+
+  server:
+    image: mathanalysis-server:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mathanalysis-server
+    restart: unless-stopped
+    env_file:
+      - /etc/mathanalysis-ai/server.env
+    ports:
+      - "127.0.0.1:5131:5131"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5131/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - sqlserver
+      - litellm
+
+volumes:
+  mathanalysis_sql_data:

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>登录 - 数学分析智能体</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="container" id="loginPageRoot">
+    <nav class="top-nav" aria-label="主导航">
+        <a class="top-nav-link" href="/index.html">学习分析</a>
+        <a class="top-nav-link" href="/materials.html">课程资料</a>
+        <a class="top-nav-link" href="/stats.html">学习统计</a>
+        <a class="top-nav-link nav-dev" href="/dev.html">开发工具</a>
+        <a class="top-nav-link" href="/login.html">登录</a>
+    </nav>
+
+    <div class="hero hero-left">
+        <h1>登录</h1>
+        <p>当前为开发期登录，仅按用户名切换测试用户，不是正式认证系统。</p>
+    </div>
+
+    <div class="card">
+        <div class="section-title">开发期登录</div>
+        <div class="form-grid">
+            <div class="full">
+                <label for="loginUsernameInput">用户名</label>
+                <input id="loginUsernameInput" type="text" placeholder="例如：test_student" autocomplete="username">
+            </div>
+        </div>
+        <div class="actions">
+            <button id="loginSubmitBtn" onclick="loginWithUsername()">登录</button>
+            <button id="loginQuickBtn" class="btn-secondary" onclick="quickLoginTestStudent()">使用测试学生登录</button>
+            <span id="loginStatus" class="status"></span>
+        </div>
+        <div id="loginUserInfo" class="hint"></div>
+    </div>
+</div>
+
+<script src="/js/config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/login.js"></script>
+</body>
+</html>

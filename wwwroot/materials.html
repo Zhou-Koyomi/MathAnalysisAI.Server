@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>课程资料 - 数学分析智能体</title>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="container">
+    <nav class="top-nav" aria-label="主导航">
+        <a class="top-nav-link" href="/index.html">学习分析</a>
+        <a class="top-nav-link" href="/materials.html">课程资料</a>
+        <a class="top-nav-link" href="/stats.html">学习统计</a>
+        <a class="top-nav-link nav-dev" href="/dev.html">开发工具</a>
+    </nav>
+
+    <div class="hero hero-left">
+        <h1>课程资料</h1>
+        <p>上传教材、讲义或课程资料，后续将用于知识库检索与学习分析。</p>
+    </div>
+
+    <div id="materialsAccessDenied" style="display:none;"></div>
+
+    <div id="materialsManagerArea">
+    <div class="card">
+        <div class="section-title">上传资料</div>
+        <div class="form-grid">
+            <div class="full">
+                <label for="materialTitleInput">资料标题</label>
+                <input id="materialTitleInput" type="text" placeholder="例如：数学分析教材（上册）第七章反常积分">
+            </div>
+            <div>
+                <label for="materialChapterSelect">章节</label>
+                <select id="materialChapterSelect">
+                    <option value="307" selected>反常积分</option>
+                    <option value="301">极限</option>
+                    <option value="302">连续</option>
+                    <option value="303">导数与微分</option>
+                    <option value="304">微分中值定理</option>
+                    <option value="305">不定积分</option>
+                    <option value="306">定积分</option>
+                    <option value="308">数项级数</option>
+                    <option value="309">函数列与函数项级数</option>
+                    <option value="310">幂级数</option>
+                    <option value="311">多元函数微分学</option>
+                </select>
+            </div>
+            <div>
+                <label for="materialKindSelect">资料类型</label>
+                <select id="materialKindSelect">
+                    <option value="textbook" selected>教材</option>
+                    <option value="lecture_note">讲义</option>
+                    <option value="exercise_book">习题册</option>
+                    <option value="handout">资料</option>
+                    <option value="user_note">个人笔记</option>
+                    <option value="other">其他</option>
+                </select>
+            </div>
+            <div class="full">
+                <label for="materialPdfFile">PDF 文件</label>
+                <input id="materialPdfFile" type="file" accept=".pdf,application/pdf">
+            </div>
+        </div>
+        <div class="actions">
+            <button id="uploadMaterialBtn" onclick="uploadCourseMaterial()">上传资料</button>
+            <span id="uploadMaterialStatus" class="status"></span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">上传结果</div>
+        <div id="materialResultBox" class="status">暂无上传结果</div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">已上传资料</div>
+        <div class="materials-filter-grid">
+            <div>
+                <label for="materialsListChapterSelect">章节</label>
+                <select id="materialsListChapterSelect">
+                    <option value="">全部章节</option>
+                    <option value="307">反常积分</option>
+                    <option value="301">极限</option>
+                    <option value="302">连续</option>
+                    <option value="303">导数与微分</option>
+                    <option value="304">微分中值定理</option>
+                    <option value="305">不定积分</option>
+                    <option value="306">定积分</option>
+                    <option value="308">数项级数</option>
+                    <option value="309">函数列与函数项级数</option>
+                    <option value="310">幂级数</option>
+                    <option value="311">多元函数微分学</option>
+                </select>
+            </div>
+            <div>
+                <label for="materialsListStatusSelect">解析状态</label>
+                <select id="materialsListStatusSelect">
+                    <option value="">全部状态</option>
+                    <option value="success">解析成功</option>
+                    <option value="processing">解析中</option>
+                    <option value="pending">等待解析</option>
+                    <option value="failed">解析失败</option>
+                    <option value="ocr_pending">需要 OCR</option>
+                </select>
+            </div>
+            <div class="materials-filter-actions">
+                <button id="materialsRefreshBtn" onclick="refreshCourseMaterials()">刷新</button>
+                <span id="materialsListStatus" class="status"></span>
+            </div>
+        </div>
+        <div id="materialsListContainer" class="status">加载中...</div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">资料检索调试</div>
+        <div class="form-grid">
+            <div class="full">
+                <label for="materialSearchQInput">检索关键词/题目文本</label>
+                <input id="materialSearchQInput" type="text" placeholder="例如：反常积分 收敛 比较判别法">
+            </div>
+            <div>
+                <label for="materialSearchChapterSelect">章节</label>
+                <select id="materialSearchChapterSelect">
+                    <option value="">全部章节</option>
+                    <option value="307">反常积分</option>
+                    <option value="301">极限</option>
+                    <option value="302">连续</option>
+                    <option value="303">导数与微分</option>
+                    <option value="304">微分中值定理</option>
+                    <option value="305">不定积分</option>
+                    <option value="306">定积分</option>
+                    <option value="308">数项级数</option>
+                    <option value="309">函数列与函数项级数</option>
+                    <option value="310">幂级数</option>
+                    <option value="311">多元函数微分学</option>
+                </select>
+            </div>
+            <div>
+                <label for="materialSearchTopKInput">TopK（1~8）</label>
+                <input id="materialSearchTopKInput" type="number" min="1" max="8" step="1" value="3">
+            </div>
+            <div class="full">
+                <label for="materialSearchStudentSolutionInput">学生解答（可选）</label>
+                <textarea id="materialSearchStudentSolutionInput" placeholder="可选：用于辅助检索的学生解答文本"></textarea>
+            </div>
+        </div>
+        <div class="actions">
+            <button id="materialSearchBtn" onclick="searchCourseMaterials()">检索</button>
+            <span id="materialSearchStatus" class="status"></span>
+        </div>
+        <div id="materialSearchResultContainer" class="status">点击“检索”后显示结果。</div>
+    </div>
+    </div>
+</div>
+
+<script src="/js/config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/materials.js"></script>
+</body>
+</html>

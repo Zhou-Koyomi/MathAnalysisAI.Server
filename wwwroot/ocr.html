@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>拍照识别 - 数学分析智能体</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="stylesheet" href="/vendor/mathlive/mathlive-static.css">
+    <link rel="stylesheet" href="/vendor/mathlive/mathlive-fonts.css">
+    <script src="/vendor/mathlive/mathlive.min.js"></script>
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+<div class="container">
+    <nav class="top-nav" aria-label="主导航">
+        <a class="top-nav-link" href="/index.html">首页</a>
+        <a class="top-nav-link" href="/analysis.html">手动分析</a>
+        <a class="top-nav-link" href="/ocr.html">拍照识别</a>
+        <a class="top-nav-link" href="/materials.html">课程资料</a>
+        <a class="top-nav-link" href="/stats.html">学习统计</a>
+        <a class="top-nav-link nav-dev" href="/dev.html">开发工具</a>
+    </nav>
+
+    <div class="hero hero-left">
+        <h1>拍照识别与公式校对</h1>
+        <p>先识别题目和解答，再检查公式卡片。确认无误后手动开始分析，不会自动提交 analyze。</p>
+    </div>
+
+    <div class="card">
+        <div class="section-title">拍照解答</div>
+        <div class="upload-row">
+            <div>
+                <label for="photoSolutionFile">作业图片</label>
+                <input id="photoSolutionFile" type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+            </div>
+            <div>
+                <label for="photoSolutionHint">识别提示（可选）</label>
+                <input id="photoSolutionHint" type="text" placeholder="例如：题目在上半部分，解答在下半部分。">
+            </div>
+        </div>
+        <div class="actions">
+            <button id="photoOcrBtn" onclick="recognizePhotoSolution()">识别题目与解答</button>
+            <span id="photoOcrStatus" class="status"></span>
+        </div>
+        <div id="photoOcrSummary" class="hint"></div>
+
+        <div id="photoOcrReviewNotice" class="hint ocr-review-card" style="display:none;"></div>
+
+        <div id="photoOcrFormulaReview" class="ocr-review-card" style="display:none;">
+            <div class="section-title section-title-compact">识别出的公式</div>
+            <div class="hint">点击公式即可直接编辑；确认无误后可复制或插入到题目、我的解答末尾。</div>
+            <div id="photoOcrFormulaList" class="ocr-formula-list"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">OCR 结果确认后开始分析</div>
+        <div class="form-grid">
+            <div>
+                <label for="chapterSelect">章节</label>
+                <select id="chapterSelect">
+                    <option value="307" selected>反常积分</option>
+                    <option value="301">极限</option>
+                    <option value="302">连续</option>
+                    <option value="303">导数与微分</option>
+                    <option value="304">微分中值定理</option>
+                    <option value="305">不定积分</option>
+                    <option value="306">定积分</option>
+                    <option value="308">数项级数</option>
+                    <option value="309">函数列与函数项级数</option>
+                    <option value="310">幂级数</option>
+                    <option value="311">多元函数微分学</option>
+                </select>
+            </div>
+            <div>
+                <label for="modeSelect">分析模式</label>
+                <select id="modeSelect">
+                    <option value="review_solution" selected>批改学生解答</option>
+                    <option value="hint">只给提示</option>
+                    <option value="solve">标准解答</option>
+                    <option value="concept_explain">概念讲解</option>
+                </select>
+            </div>
+            <div class="full">
+                <label for="problemTextInput">题目</label>
+                <textarea id="problemTextInput" placeholder="OCR 会回填题目，你也可以手动修改。"></textarea>
+            </div>
+            <div class="full">
+                <label for="studentSolutionTextInput">我的解答</label>
+                <textarea id="studentSolutionTextInput" placeholder="OCR 会回填解答，你也可以手动修改。"></textarea>
+            </div>
+        </div>
+        <div class="actions">
+            <button id="analyzeBtn" onclick="analyzeText()">开始分析</button>
+            <span id="analyzeStatus" class="status"></span>
+        </div>
+        <div id="currentUserHint" class="hint"></div>
+    </div>
+
+    <div class="card">
+        <div class="section-title">分析结果</div>
+        <div id="resultContainer" class="status">暂无结果</div>
+    </div>
+</div>
+
+<script src="/js/config.js"></script>
+<script src="/js/api.js"></script>
+<script src="/js/ui.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/nav.js"></script>
+<script src="/js/knowledge-points.js"></script>
+<script src="/js/analysis.js"></script>
+<script src="/js/photo-solution.js"></script>
+<script src="/js/mathlive-ocr.js"></script>
+</body>
+</html>
